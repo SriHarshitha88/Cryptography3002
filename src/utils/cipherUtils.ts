@@ -1,4 +1,3 @@
-
 /**
  * Cipher Utilities
  * This file contains utility functions for various classical ciphers
@@ -60,7 +59,7 @@ export const affineCipher = {
           const isUpperCase = code >= 65 && code <= 90;
           const offset = isUpperCase ? 65 : 97;
           const x = code - offset;
-          return String.fromCharCode(((a * x + b) % 26) + offset);
+          return String.fromCharCode(((a * x + b) % 26 + 26) % 26 + offset);
         }
         return char;
       })
@@ -71,6 +70,9 @@ export const affineCipher = {
       throw new Error("'a' must be coprime with 26");
     }
     const aInverse = modInverse(a, 26);
+    if (aInverse === -1) {
+      throw new Error("No modular inverse exists for 'a'");
+    }
     return text
       .split('')
       .map(char => {
@@ -79,7 +81,9 @@ export const affineCipher = {
           const isUpperCase = code >= 65 && code <= 90;
           const offset = isUpperCase ? 65 : 97;
           const y = code - offset;
-          return String.fromCharCode(((aInverse * (y - b + 26)) % 26) + offset);
+          // D(y) = a^(-1)(y - b) mod m
+          const decrypted = ((aInverse * (y - b)) % 26 + 26) % 26;
+          return String.fromCharCode(decrypted + offset);
         }
         return char;
       })
