@@ -1,6 +1,6 @@
 # 🔐 Cryptography3002 - Classical Cipher Explorer
 
-![Website Preview](![image](https://github.com/user-attachments/assets/ab4d3dfd-3e3d-49ab-99dc-d198422bea2d) <!-- Replace with actual path once image is uploaded -->
+![Website Preview](![image](https://github.com/user-attachments/assets/ab4d3dfd-3e3d-49ab-99dc-d198422bea2d))
 
 > A modern, sleek, and interactive platform to visualize and implement classical encryption techniques — blending historical cryptography with modern web design.
 
