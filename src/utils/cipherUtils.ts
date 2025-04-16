@@ -16,13 +16,16 @@ export const caesarCipher = {
           const code = char.charCodeAt(0);
           const isUpperCase = code >= 65 && code <= 90;
           const offset = isUpperCase ? 65 : 97;
-          return String.fromCharCode(((code - offset + shift) % 26) + offset);
+          // Ensure positive shift and handle wrap-around
+          const shifted = ((code - offset + shift) % 26 + 26) % 26;
+          return String.fromCharCode(shifted + offset);
         }
         return char;
       })
       .join('');
   },
   decrypt: (text: string, shift: number): string => {
+    // Decryption is just encryption with negative shift
     return caesarCipher.encrypt(text, 26 - (shift % 26));
   }
 };
@@ -37,11 +40,19 @@ export const atbashCipher = {
           const code = char.charCodeAt(0);
           const isUpperCase = code >= 65 && code <= 90;
           const offset = isUpperCase ? 65 : 97;
-          return String.fromCharCode(25 - (code - offset) + offset);
+          // Atbash: A -> Z, B -> Y, etc.
+          const transformed = 25 - (code - offset);
+          return String.fromCharCode(transformed + offset);
         }
         return char;
       })
       .join('');
+  },
+  encrypt: (text: string): string => {
+    return atbashCipher.transform(text);
+  },
+  decrypt: (text: string): string => {
+    return atbashCipher.transform(text); // Atbash is its own inverse
   }
 };
 
@@ -59,7 +70,9 @@ export const affineCipher = {
           const isUpperCase = code >= 65 && code <= 90;
           const offset = isUpperCase ? 65 : 97;
           const x = code - offset;
-          return String.fromCharCode(((a * x + b) % 26 + 26) % 26 + offset);
+          // E(x) = (ax + b) mod m
+          const encrypted = ((a * x + b) % 26 + 26) % 26;
+          return String.fromCharCode(encrypted + offset);
         }
         return char;
       })
@@ -95,6 +108,8 @@ export const affineCipher = {
 export const vigenereCipher = {
   encrypt: (text: string, key: string): string => {
     if (!key.length) return text;
+    const normalizedKey = key.toUpperCase().replace(/[^A-Z]/g, '');
+    if (!normalizedKey.length) return text;
     
     return text
       .split('')
@@ -103,11 +118,11 @@ export const vigenereCipher = {
           const code = char.charCodeAt(0);
           const isUpperCase = code >= 65 && code <= 90;
           const offset = isUpperCase ? 65 : 97;
-          
-          const keyChar = key[i % key.length].toUpperCase();
-          const shift = keyChar.charCodeAt(0) - 65;
-          
-          return String.fromCharCode(((code - offset + shift) % 26) + offset);
+          const keyChar = normalizedKey[i % normalizedKey.length];
+          const keyShift = keyChar.charCodeAt(0) - 65;
+          // E(x) = (x + k) mod 26
+          const encrypted = ((code - offset + keyShift) % 26 + 26) % 26;
+          return String.fromCharCode(encrypted + offset);
         }
         return char;
       })
@@ -115,6 +130,8 @@ export const vigenereCipher = {
   },
   decrypt: (text: string, key: string): string => {
     if (!key.length) return text;
+    const normalizedKey = key.toUpperCase().replace(/[^A-Z]/g, '');
+    if (!normalizedKey.length) return text;
     
     return text
       .split('')
@@ -123,11 +140,11 @@ export const vigenereCipher = {
           const code = char.charCodeAt(0);
           const isUpperCase = code >= 65 && code <= 90;
           const offset = isUpperCase ? 65 : 97;
-          
-          const keyChar = key[i % key.length].toUpperCase();
-          const shift = keyChar.charCodeAt(0) - 65;
-          
-          return String.fromCharCode(((code - offset - shift + 26) % 26) + offset);
+          const keyChar = normalizedKey[i % normalizedKey.length];
+          const keyShift = keyChar.charCodeAt(0) - 65;
+          // D(y) = (y - k) mod 26
+          const decrypted = ((code - offset - keyShift) % 26 + 26) % 26;
+          return String.fromCharCode(decrypted + offset);
         }
         return char;
       })
